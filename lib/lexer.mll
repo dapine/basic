@@ -6,7 +6,7 @@
 
 rule token = parse
     | [' ' '\t'] { token lexbuf }
-    | ['\n'] { EOL }
+    | ['\n'] { Lexing.new_line lexbuf; EOL }
     | eof { EOF }
     | ['0'-'9']+ as lxm { INT (int_of_string lxm) }
     | ['a'-'z']+ as lxm { VAR (lxm) }
