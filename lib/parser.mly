@@ -52,6 +52,7 @@ cmd:
     | LET VAR EQUAL expr { Syntax.Let ($2, $4) }
     | INPUT VAR { Syntax.Input $2 }
     | IF expr THEN INT { Syntax.If ($2, $4) }
+    | PRINT expr { Syntax.Print $2 }
 ;
 
 line: cmd { let ln = Parsing.symbol_start_pos () in {num=ln.pos_lnum; cmd=$1} : Syntax.line }
