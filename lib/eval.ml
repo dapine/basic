@@ -9,8 +9,18 @@ exception ExpUnrEval of string
 exception ExpBinEval of string
 exception ExpEval of string
 
-let eval_int = function
+let rec eval_int = function
     | ExpInt n -> n
+    | ExpBin (e1, op, e2) -> (match op with
+                                | PLUS -> eval_int e1 + eval_int e2
+                                | MINUS -> eval_int e1 - eval_int e2
+                                | MULT -> eval_int e1 * eval_int e2
+                                | DIV -> eval_int e1 / eval_int e2
+                                | MOD -> eval_int e1 mod eval_int e2
+                                | _ -> raise (ExpBinEval "Could not evaluate a binary expression"))
+    | ExpUnr (op, e) -> (match op with
+                            | UMINUS -> - (eval_int e)
+                            | _ -> raise (ExpUnrEval "Could not evaluate a unary expression"))
     | _ -> 0
 
 let eval_string = function
@@ -22,15 +32,9 @@ let eval_expression = function
     | ExpVar s -> VVar s
     | ExpStr s -> VString s
     | ExpUnr (op, e) -> (match op with
-                            | UMINUS -> VInt (- (eval_int e))
+                            | UMINUS -> VInt (eval_int (ExpUnr (op, e)))
                             | _ -> raise (ExpUnrEval "Could not evaluate a unary expression"))
-    | ExpBin (e1, op, e2) -> (match op with
-                            | PLUS -> VInt (eval_int e1 + eval_int e2)
-                            | MINUS -> VInt (eval_int e1 - eval_int e2)
-                            | MULT -> VInt (eval_int e1 * eval_int e2)
-                            | DIV -> VInt (eval_int e1 / eval_int e2)
-                            | MOD -> VInt (eval_int e1 mod eval_int e2)
-                            | _ -> raise (ExpBinEval "Could not evaluate a binary expression"))
+    | ExpBin (e1, op, e2) -> VInt (eval_int (ExpBin (e1, op, e2)))
 
 let string_of_eval = function
     | VInt n -> string_of_int n
